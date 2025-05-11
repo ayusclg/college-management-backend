@@ -4,7 +4,9 @@ import { uploadImage } from "../utils/fileUpload"
 
 const userReg = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { email, fullname, password, address, picture } = req.body
+        
+        const { email, fullname, password, address } = req.body
+        
         
         if (!email || !fullname || !password || !address) {
             res.status(403).json({
@@ -12,7 +14,6 @@ const userReg = async (req: Request, res: Response): Promise<void> => {
             })
             return
         }
-
         const user = await User.findOne({
             email,
         })
@@ -22,30 +23,38 @@ const userReg = async (req: Request, res: Response): Promise<void> => {
             })
             return;
         }
-
-        const photoUrl = req.file as Express.Multer.File
-        const uploadUrl = await uploadImage(photoUrl)
-        if (!uploadUrl) {
-            res.status(500).json({
-                message:"SERVER ERROR IN UPDATING IMAGE"
-            })
+        let uploadUrl:string | undefined = undefined 
+        if (req.file) {
+            const photoUrl = req.file as Express.Multer.File
+            uploadUrl = await uploadImage(photoUrl)
+            if (!uploadUrl) {
+                res.status(500).json({
+                    message: "SERVER ERROR IN UPDATING IMAGE"
+                })
+                return
+            }
         }
-
-        const createUser = new User({
-            email,
-            password,
-            fullname,
-            address,
-            picture:uploadUrl
+        
+        
+        const createUser = await User.create({
+            email: email,
+            password: password,
+            fullname: fullname,
+            address: address,
+            photo:uploadUrl || "Not Uploaded"
         })
-        await createUser.save()
+        
+        
+        const created = await User.findById(createUser._id).select("-password")
         
         res.status(201).json({
             message: "User Created",
-            data:createUser.select("-password")
+            data:created
         })
+        return;
     } catch (error) {
-        res.status(500).json({message:"Server Error In User Register"})
+        res.status(500).json({ message: "Server Error In User Register" })
+        return
     }
 }
 

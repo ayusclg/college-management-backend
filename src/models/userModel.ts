@@ -10,6 +10,7 @@ interface UserDocument extends Document{
   password: string,
   address?: string,
   fullname: string
+  photo?:string
   isModified:(field:string)=>boolean
   
 }
@@ -18,8 +19,8 @@ interface UserDocument extends Document{
 
 const userSchema = new mongoose.Schema({
   authOid: {
-    type: String,
-    required:true
+    type:String,
+    required:false
   },
   fullname: {
     type: String,
@@ -33,7 +34,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     require:true,
   },
-  picture: {
+  photo: {
     type:String
   },
   password: {

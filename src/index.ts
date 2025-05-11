@@ -1,11 +1,14 @@
 import  express  from "express"
 import { DbConnect } from "./database"
+import userRoutes from './routes/userRoutes'
 
 
 const app = express()
 const port = 3000
 const host = "127.0.0.1"
 
+app.use(express.json())
+app.use(express.urlencoded())
 
 
 DbConnect().then((res) => {
@@ -22,3 +25,4 @@ app.get("/", (req, res) => {
 })
 
 
+app.use("/auth",userRoutes)
