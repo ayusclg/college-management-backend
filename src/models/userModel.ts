@@ -1,36 +1,44 @@
-import bcrypt from "bcrypt";
-import mongoose, { Document, Schema } from "mongoose";
+import mongoose from "mongoose";
 
-// Define interface for user document
-interface IUser extends Document {
-  authOid?: string;
-  fullname?: string;
-  email?: string;
-  password?: string;
-  profilePicture?: string;
-  address?: string;
-  isModified: (field: string) => boolean;
+
+interface user extends Document{
+  authOid: string,
+  email: string,
+  password: string,
+  address?: string,
+  fullname: string
+  isModified:(field:string)=>Boolean
+  
 }
 
-const userSchema = new Schema<IUser>({
-  authOid: String,
-  fullname: String,
-  email: String,
-  password: String,
-  profilePicture: String,
-  address: String,
-});
 
 
-userSchema.pre("save", async function (this: IUser, next) {
-  if (!this.isModified("password")) return next();
-  try {
-    this.password = await bcrypt.hash(this.password!, 10);
-    next();
-  } catch (error) {
-    console.error("Error hashing password:", error);
-    next(error as any);
+const userSchema = new mongoose.Schema({
+  authOid: {
+    type: String,
+    required:true
+  },
+  fullname: {
+    type: String,
+    require:true,
+  },
+  email: {
+    type: String,
+    require:true,
+  },
+  address: {
+    type: String,
+    require:true,
+  },
+  picture: {
+    type:String
+  },
+  password: {
+    type:String,
   }
-});
+}, { timestamps: true })
 
-export const User = mongoose.model<IUser>("User", userSchema);
+
+
+
+export const User = mongoose.model<user>("User",userSchema)
