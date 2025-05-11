@@ -1,25 +1,25 @@
 import { Request,Response } from "express"
-import { User } from "../models/userModel"
+import { Student } from "../models/Student"
 import { uploadImage } from "../utils/fileUpload"
 
-const userReg = async (req: Request, res: Response): Promise<void> => {
+const StudentReg = async (req: Request, res: Response): Promise<void> => {
     try {
         
-        const { email, fullname, password, address } = req.body
+        const { email, fullname, password, address,fatherContact,fatherName,motherName,studentContact, } = req.body
         
         
-        if (!email || !fullname || !password || !address) {
+        if (!email || !fullname || !password || !address ||!fatherContact ||!fatherName ||!motherName ||!studentContact) {
             res.status(403).json({
                 message: "Error Occured  in fetching details"
             })
             return
         }
-        const user = await User.findOne({
+        const exist = await Student.findOne({
             email,
         })
-        if (user) {
+        if (exist) {
             res.status(403).json({
-                message:"User Already Exist"
+                message:"Student Already Exist"
             })
             return;
         }
@@ -36,26 +36,37 @@ const userReg = async (req: Request, res: Response): Promise<void> => {
         }
         
         
-        const createUser = await User.create({
+        const createStudent = await Student.create({
             email: email,
             password: password,
             fullname: fullname,
             address: address,
+            fatherContact,
+            fatherName,
+            motherName,
+            studentContact,
             photo:uploadUrl || "Not Uploaded"
         })
         
         
-        const created = await User.findById(createUser._id).select("-password")
+        const created = await Student.findById(createStudent._id).select("-password")
         
         res.status(201).json({
-            message: "User Created",
+            message: "Student Created",
             data:created
         })
         return;
     } catch (error) {
-        res.status(500).json({ message: "Server Error In User Register" })
+        res.status(500).json({ message: "Server Error In Student Register" })
         return
     }
 }
 
-export {userReg}
+const myProfile = async (req: Request, res: Response): Promise<void> => {
+    try {
+        
+    } catch (error) {
+        
+    }
+}
+export {StudentReg,myProfile}

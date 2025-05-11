@@ -1,6 +1,6 @@
 import  express  from "express"
 import { DbConnect } from "./database"
-import userRoutes from './routes/userRoutes'
+import StudentRoutes from './routes/student'
 
 
 const app = express()
@@ -25,4 +25,4 @@ app.get("/", (req, res) => {
 })
 
 
-app.use("/auth",userRoutes)
+app.use("/auth",StudentRoutes)
