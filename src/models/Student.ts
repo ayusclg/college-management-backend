@@ -1,8 +1,11 @@
 import mongoose from "mongoose";
 import bcrypt from 'bcrypt'
 import { Document } from "mongodb";
+import jwt from "jsonwebtoken";
+import { configDotenv } from "dotenv";
+import { Types } from "joi";
 
-
+configDotenv()
 interface StudentDocument extends Document{
   authOid: string,
   address?: string,
@@ -67,6 +70,9 @@ const studentSchema = new mongoose.Schema({
   level: {
     type: String,
     default:"+2"
+  },
+  refresh_token: {
+    type:String
   }
 }, { timestamps: true })
 
@@ -78,5 +84,10 @@ studentSchema.pre<StudentDocument>("save", async function(this:StudentDocument,n
   this.password = await bcrypt.hash(this.password, 10)
   next()
 })
+
+studentSchema.methods.isPasswordCorrect = async function(password:string):Promise<Boolean>{
+return await bcrypt.compare(password,this.password)
+}
+
 
 export const Student = mongoose.model<StudentDocument>("Student", studentSchema)
