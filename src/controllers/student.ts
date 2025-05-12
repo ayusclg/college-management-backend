@@ -2,6 +2,15 @@ import { Request,Response } from "express"
 import { Student } from "../models/Student"
 import { uploadImage } from "../utils/fileUpload"
 
+declare global{
+    namespace express{
+        interface Request {
+        authOid: String,
+        userId: String
+    }
+}
+}
+
 const StudentReg = async (req: Request, res: Response): Promise<void> => {
     try {
         
@@ -62,11 +71,5 @@ const StudentReg = async (req: Request, res: Response): Promise<void> => {
     }
 }
 
-const myProfile = async (req: Request, res: Response): Promise<void> => {
-    try {
-        
-    } catch (error) {
-        
-    }
-}
-export {StudentReg,myProfile}
+
+export {StudentReg}
