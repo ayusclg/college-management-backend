@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const database_1 = require("./database");
 const student_1 = __importDefault(require("./routes/student"));
+const studentAuth_1 = __importDefault(require("./routes/studentAuth"));
 const app = (0, express_1.default)();
 const port = 3000;
 const host = "127.0.0.1";
@@ -22,3 +23,4 @@ app.get("/", (req, res) => {
     res.send("Hello This Is Typescript Backend");
 });
 app.use("/auth", student_1.default);
+app.use("/auth", studentAuth_1.default);

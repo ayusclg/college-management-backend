@@ -10,9 +10,10 @@ interface StudentDocument extends Document{
   fatherName: string,
   motherName: string,
   fatherContact: number,
-  level: number,
+  level: string,
   photo?: string,
-  isModified:(field:string)=>boolean
+  isModified: (field: string) => boolean
+  enum:string
   
 }
 
@@ -25,39 +26,47 @@ const studentSchema = new mongoose.Schema({
   },
   fullname: {
     type: String,
-    require:true,
+    
   },
   fatherName: {
     type: String,
-    require:true,
+   
   },
   address: {
     type: String,
-    require:true,
+    
   },
   photo: {
     type:String
   },
   motherName: {
     type: String,
-    require:true,
+   
   },
   fatherContact: {
     type: Number,
-    require:true,
+    
   },
   studentContact: {
     type: Number,
-    require:true
+    
   },
   email: {
     type: String,
-    require:true,
+    
     
   },
   password: {
     type: String,
-    require:true
+    
+  },
+  gender: {
+    type:String,
+    enum:["male","female"]
+  },
+  level: {
+    type: String,
+    default:"+2"
   }
 }, { timestamps: true })
 

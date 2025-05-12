@@ -14,7 +14,7 @@ declare global{
 const StudentReg = async (req: Request, res: Response): Promise<void> => {
     try {
         
-        const { email, fullname, password, address,fatherContact,fatherName,motherName,studentContact, } = req.body
+        const { email, fullname, password, address, fatherContact, fatherName, motherName, studentContact, gender,level } = req.body
         
         
         if (!email || !fullname || !password || !address ||!fatherContact ||!fatherName ||!motherName ||!studentContact) {
@@ -54,7 +54,9 @@ const StudentReg = async (req: Request, res: Response): Promise<void> => {
             fatherName,
             motherName,
             studentContact,
-            photo:uploadUrl || "Not Uploaded"
+            photo: uploadUrl || "Not Uploaded",
+            gender,
+            level,
         })
         
         
