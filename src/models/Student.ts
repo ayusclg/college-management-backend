@@ -90,4 +90,23 @@ return await bcrypt.compare(password,this.password)
 }
 
 
+studentSchema.methods.generateRefreshToken =  function ():string {
+  return jwt.sign({
+    _id:this._id
+  }, process.env.REFRESH_TOKEN_SECRET as string, {
+    expiresIn:process.env.REFRESH_TOKEN_EXPIRY as string
+  })
+}
+
+studentSchema.methods.generateAccessToken = function (): string{
+  return jwt.sign({
+    _id: this._id,
+    fullname: this.fullname,
+    studentContact:this.studentContact
+  },
+    process.env.ACCESS_TOKEN_SECRET as string, {
+    expiresIn:process.env.ACCESS_TOKEN_EXPIRY as string
+  })
+}
+
 export const Student = mongoose.model<StudentDocument>("Student", studentSchema)
