@@ -17,7 +17,7 @@ interface StudentDocument extends Document{
   photo?: string,
   isModified: (field: string) => boolean
   enum:string
-  
+  isPasswordCorrect:(field:string)=>boolean
 }
 
 
@@ -79,34 +79,30 @@ const studentSchema = new mongoose.Schema({
 
 
 
-studentSchema.pre<StudentDocument>("save", async function(this:StudentDocument,next){
-  if (!this.isModified("password")) return next()
-  this.password = await bcrypt.hash(this.password, 10)
-  next()
-})
+studentSchema.methods.generateAccessToken = function (): string {
+  if (!process.env.ACCESS_TOKEN_SECRET || !process.env.ACCESS_TOKEN_EXPIRY) {
+    throw new Error("ACCESS_TOKEN_SECRET or EXPIRY not set");
+  }
 
-studentSchema.methods.isPasswordCorrect = async function(password:string):Promise<Boolean>{
-return await bcrypt.compare(password,this.password)
-}
+  return jwt.sign(
+    { _id: this._id },
+    process.env.ACCESS_TOKEN_SECRET,
+    { expiresIn: process.env.ACCESS_TOKEN_EXPIRY }
+  );
+};
 
 
-studentSchema.methods.generateRefreshToken =  function ():string {
-  return jwt.sign({
-    _id:this._id
-  }, process.env.REFRESH_TOKEN_SECRET as string, {
-    expiresIn:process.env.REFRESH_TOKEN_EXPIRY as string
-  })
-}
+studentSchema.methods.generateRefreshToken = function (): string {
+  if (!process.env.REFRESH_TOKEN_SECRET || !process.env.REFRESH_TOKEN_EXPIRY) {
+    throw new Error("REFRESH_TOKEN_SECRET or EXPIRY not set");
+  }
 
-studentSchema.methods.generateAccessToken = function (): string{
-  return jwt.sign({
-    _id: this._id,
-    fullname: this.fullname,
-    studentContact:this.studentContact
-  },
-    process.env.ACCESS_TOKEN_SECRET as string, {
-    expiresIn:process.env.ACCESS_TOKEN_EXPIRY as string
-  })
-}
+  return jwt.sign(
+    { _id: this._id },
+    process.env.REFRESH_TOKEN_SECRET,
+    { expiresIn: process.env.REFRESH_TOKEN_EXPIRY }
+  );
+};
+
 
 export const Student = mongoose.model<StudentDocument>("Student", studentSchema)

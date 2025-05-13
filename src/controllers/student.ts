@@ -1,6 +1,9 @@
 import { Request,Response } from "express"
 import { Student } from "../models/Student"
 import { uploadImage } from "../utils/fileUpload"
+import { error } from "console"
+import { ObjectId } from "mongoose"
+import { Types } from "mongoose"
 
 declare global{
     namespace express{
@@ -9,6 +12,39 @@ declare global{
         userId: String
     }
 }
+}
+
+const AccessToken = async (userId: Types.ObjectId):Promise<string>=>{
+    try {
+        const user = await Student.findById(userId)
+        if (!user) {
+        throw new Error('User not found');
+      }
+        const AccessToken: string = await user.generateAccessToken()
+        
+        return AccessToken;
+
+    } catch (error) {
+        console.log("Error In Generating AccessToken")
+    }
+
+}
+
+const RefreshToken = async (userId:Types.ObjectId):Promise<string> =>{
+    try {
+        const user = await Student.findById(userId)
+        if (!user) {
+            throw new Error("user not found")
+        }
+        const RefreshToken = await user.generateRefreshToken() as string
+        user.refresh_token = RefreshToken
+        await user.save({
+            validateBeforeSave:false
+        })
+        return RefreshToken
+    } catch (error) {
+        console.log("Error In Generating RefreshToken")
+    }
 }
 
 const StudentReg = async (req: Request, res: Response): Promise<void> => {
@@ -74,5 +110,54 @@ const StudentReg = async (req: Request, res: Response): Promise<void> => {
 }
 
 
+const studentLogin = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { email, password } = req.body
+        
+        if (!email || !password) {
+            res.status(403).json({
+                message:"Invalid Credentials "
+            })
+            return
+        }
+        const user = await Student.findOne({ email, })
+        if (!user)
+        {
+            res.status(400).json({message:"Email Doesnot Exist"})
+            return
+        }
 
-export {StudentReg}
+        const passwordCheck = await user.isPasswordCorrect(password)
+        if (!passwordCheck) {
+            res.status(403).json({
+                message:"Invalid Credentials"
+            })
+        }
+        const refreshToken = await RefreshToken(user._id)
+        const accessToken = await AccessToken(user._id)
+
+        if (!refreshToken || !accessToken) {
+            res.status(404).json({
+                message:"Token Not Generated"
+            })
+            return
+        }
+        const userLoggedIn = await Student.findById(user._id).select("-password -refresh_token")
+
+        const options = {
+            httpOnly: true,
+            secure:true
+        }
+        res.status(200)
+            .cookie("accessToken", accessToken,options)
+            .cookie("refreshToken",refreshToken,options)
+            .json({
+            message:"User Logged In",
+            data:userLoggedIn
+        })
+            
+    } catch (error) {
+        res.status(500).json({message:"Server Error In Student Login"})
+    }
+}
+export {StudentReg,studentLogin}
