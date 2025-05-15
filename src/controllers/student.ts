@@ -4,6 +4,8 @@ import { uploadImage } from "../utils/fileUpload"
 import { error } from "console"
 import { ObjectId } from "mongoose"
 import { Types } from "mongoose"
+import { json } from "stream/consumers"
+import { object } from "joi"
 
 declare global{
     namespace express{
@@ -50,9 +52,10 @@ const RefreshToken = async (userId:Types.ObjectId):Promise<string> =>{
 const StudentReg = async (req: Request, res: Response): Promise<void> => {
     try {
         
-        const { email, fullname, password, address, fatherContact, fatherName, motherName, studentContact, gender,level } = req.body
+        const { email, fullname, password, address, fatherContact, fatherName, motherName, studentContact, gender, level } = req.body
         
-        
+   
+
         if (!email || !fullname || !password || !address ||!fatherContact ||!fatherName ||!motherName ||!studentContact) {
             res.status(403).json({
                 message: "Error Occured  in fetching details"
